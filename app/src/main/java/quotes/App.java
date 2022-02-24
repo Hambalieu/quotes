@@ -17,8 +17,19 @@ public class App {
     public static void main(String[] args) {
 
         try{
+
+            String userPath = System.getProperty("user.dir");
+            String resourcesPath = "";
+            System.out.println(userPath);
+            String fileName = "recentquotes.json";
+            if (userPath.endsWith("quotes")) {
+                resourcesPath = "app/src/main/resources/";
+            } else {
+                resourcesPath = "src/main/resources/";
+            }
+
             Gson gson = new Gson();
-            File recentquotesJsonFile = new File("./app/src/main/resources/recentquotes.json");
+            File recentquotesJsonFile = new File(resourcesPath + fileName);
             FileReader recentquotesJsonFileReader = new FileReader(recentquotesJsonFile);
             List <Quote> quotesList = new Gson().fromJson(recentquotesJsonFileReader, new TypeToken<List<Quote>>() {}.getType());
             Random random = new Random();
@@ -27,11 +38,8 @@ public class App {
 
             Quote chosenQuote = quotesList.get(randomNumber);
 
-
             System.out.println("Author: " + chosenQuote.author);
             System.out.println("Quote: " + chosenQuote.text);
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
