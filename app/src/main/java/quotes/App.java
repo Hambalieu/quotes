@@ -14,41 +14,90 @@ import java.util.List;
 import java.util.Random;
 
 public class App {
-    public static void main(String[] args) {
 
+    public String getQuotes(String[] args) {
         try{
-
             String userPath = System.getProperty("user.dir");
             String resourcesPath = "";
             System.out.println(userPath);
-            String fileName = "recentquotes.json";
+            String fileName = args[0];
+            String chooseRand = args[1];
+
+            System.out.println(fileName);
             if (userPath.endsWith("quotes")) {
-                resourcesPath = "app/src/main/resources/";
+                resourcesPath = "./app/src/main/resources/";
             } else {
                 resourcesPath = "src/main/resources/";
             }
-
+            //"./app/src/main/resources/recentquotes.json
             Gson gson = new Gson();
             File recentquotesJsonFile = new File(resourcesPath + fileName);
             FileReader recentquotesJsonFileReader = new FileReader(recentquotesJsonFile);
             List <Quote> quotesList = new Gson().fromJson(recentquotesJsonFileReader, new TypeToken<List<Quote>>() {}.getType());
-            Random random = new Random();
-            int randomNumber =random.nextInt(0, quotesList.size() - 1);
             recentquotesJsonFileReader.close();
 
-            Quote chosenQuote = quotesList.get(randomNumber);
+            if (chooseRand.equals("yes")){
+                Random random = new Random();
+                int randomNumber =random.nextInt(0, quotesList.size() - 1);
+                Quote chosenQuote = quotesList.get(randomNumber);
 
-            System.out.println("Author: " + chosenQuote.author);
-            System.out.println("Quote: " + chosenQuote.text);
+                System.out.println("Author: " + chosenQuote.author);
+                System.out.println("Quote: " + chosenQuote.text);
+                String stringBuilder = "Author: " + chosenQuote.author + "\nQuote: " + chosenQuote.text;
 
+                return stringBuilder;
+            } else {
+
+                Quote chosenQuote = quotesList.get(0);
+                System.out.println("Author: " + chosenQuote.author);
+                System.out.println("Quote: " + chosenQuote.text);
+                String stringBuilder = "Author: " + chosenQuote.author + "\nQuote: " + chosenQuote.text;
+                return stringBuilder;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-
+        return null;
     }
 
+    public static void main(String[] args) {
+        try{
+            String userPath = System.getProperty("user.dir");
+            String resourcesPath = "";
+            System.out.println(userPath);
+            String fileName = args[0];
+            Boolean chooseRand = Boolean.valueOf(args[1]);
 
+            System.out.println(fileName);
+            if (userPath.endsWith("quotes")) {
+                resourcesPath = "./app/src/main/resources/";
+            } else {
+                resourcesPath = "src/main/resources/";
+            }
+            //"./app/src/main/resources/recentquotes.json
+            Gson gson = new Gson();
+            File recentquotesJsonFile = new File(resourcesPath + fileName);
+            FileReader recentquotesJsonFileReader = new FileReader(recentquotesJsonFile);
+            List <Quote> quotesList = new Gson().fromJson(recentquotesJsonFileReader, new TypeToken<List<Quote>>() {}.getType());
+            recentquotesJsonFileReader.close();
+
+            if (chooseRand){
+                Random random = new Random();
+                int randomNumber =random.nextInt(0, quotesList.size() - 1);
+                Quote chosenQuote = quotesList.get(randomNumber);
+
+                System.out.println("Author: " + chosenQuote.author);
+                System.out.println("Quote: " + chosenQuote.text);
+
+            } else {
+
+                Quote chosenQuote = quotesList.get(0);
+                System.out.println("Author: " + chosenQuote.author);
+                System.out.println("Quote: " + chosenQuote.text);
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

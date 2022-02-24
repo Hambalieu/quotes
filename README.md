@@ -13,7 +13,8 @@ This application returns a random quote by a famous author.
 
 - Clone the application.
 - If running locally `chmod +x gradlew` to gain access.
-- `./gradlew run` to see random quote printed in terminal.
+- `./gradlew run --args="filename false"` to see a quote printed in terminal.
+- `./gradlew run --args="filename true"` to see a random quote printed in terminal.
 - `./gradlew test` to verify tests are working.
 
 
