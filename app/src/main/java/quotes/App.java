@@ -7,11 +7,13 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Random;
+import java.io.FileWriter;
 
 public class App {
 
@@ -60,44 +62,82 @@ public class App {
         return null;
     }
 
-    public static void main(String[] args) {
-        try{
-            String userPath = System.getProperty("user.dir");
-            String resourcesPath = "";
-            System.out.println(userPath);
-            String fileName = args[0];
-            Boolean chooseRand = Boolean.valueOf(args[1]);
+    public static void main(String[] args) throws IOException {
 
-            System.out.println(fileName);
-            if (userPath.endsWith("quotes")) {
-                resourcesPath = "./app/src/main/resources/";
-            } else {
-                resourcesPath = "src/main/resources/";
-            }
-            //"./app/src/main/resources/recentquotes.json
+        String userPath = System.getProperty("user.dir");
+        String resourcesPath = "";
+        System.out.println(userPath);
+        String fileName = args[0];
+        Boolean chooseRand = Boolean.valueOf(args[1]);
+        Quote quoteToAddToFile = null;
+
+        System.out.println(fileName);
+        if (userPath.endsWith("quotes")) {
+            resourcesPath = "./app/src/main/resources/";
+        } else {
+            resourcesPath = "src/main/resources/";
+        }
+
+        try{
+                URL quoteUrl = new URL("http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en");
+                URLConnection quoteUrlConnection = quoteUrl.openConnection();
+                HttpURLConnection quoteHttpUrlConnection = (HttpURLConnection) quoteUrlConnection;
+                quoteHttpUrlConnection.setRequestMethod("GET");
+                InputStreamReader quoteInputStreamReader = new InputStreamReader(quoteHttpUrlConnection.getInputStream());
+                BufferedReader quoteBufferedReader = new BufferedReader(quoteInputStreamReader);
+
+                String quoteApiLine = quoteBufferedReader.readLine();
+                //System.out.println(quoteApiLine);
+
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                QuoteApi quoteApi = gson.fromJson(quoteApiLine, QuoteApi.class);
+
+                //System.out.println(quoteApi);
+
+                Quote convertQuote = new Quote(null, quoteApi.quoteAuthor, "", quoteApi.quoteText);
+                //System.out.println(convertQuote);
+                quoteToAddToFile = convertQuote;
+                String convertQuoteToJson = gson.toJson(convertQuote);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
             Gson gson = new Gson();
             File recentquotesJsonFile = new File(resourcesPath + fileName);
             FileReader recentquotesJsonFileReader = new FileReader(recentquotesJsonFile);
             List <Quote> quotesList = new Gson().fromJson(recentquotesJsonFileReader, new TypeToken<List<Quote>>() {}.getType());
             recentquotesJsonFileReader.close();
+            System.out.println("I am here");
+            quotesList.add(quoteToAddToFile);
+            System.out.println(quoteToAddToFile);
+
+            Gson gsonTwo = new GsonBuilder().setPrettyPrinting().create();
+
+            String updatedQuotesList = gsonTwo.toJson(quotesList);
+
+            File quotesJsonFile = new File(resourcesPath + fileName);
+            try (FileWriter jsonFileWriter = new FileWriter(quotesJsonFile) ){
+                jsonFileWriter.write(updatedQuotesList);
+
+            }
+
 
             if (chooseRand){
                 Random random = new Random();
                 int randomNumber =random.nextInt(0, quotesList.size() - 1);
                 Quote chosenQuote = quotesList.get(randomNumber);
 
-                System.out.println("Author: " + chosenQuote.author);
-                System.out.println("Quote: " + chosenQuote.text);
+//                System.out.println("Author: " + chosenQuote.author);
+//                System.out.println("Quote: " + chosenQuote.text);
 
             } else {
 
                 Quote chosenQuote = quotesList.get(0);
-                System.out.println("Author: " + chosenQuote.author);
-                System.out.println("Quote: " + chosenQuote.text);
+//                System.out.println("Author: " + chosenQuote.author);
+//                System.out.println("Quote: " + chosenQuote.text);
+
 
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
