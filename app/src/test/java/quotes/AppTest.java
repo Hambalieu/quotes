@@ -41,11 +41,25 @@ class AppTest {
     }
 
 
-
-    @Test void appTestQuote() {
+    @Test void appTestRandomQuoteWhenNotRandom() throws IOException {
         App sut = new App();
         String quote = sut.getQuotes(new String[]{"recentquotes.json", "no"});
+        System.out.println(sut);
         assert(quote.equals("Author: Marilyn Monroe\n" +
                 "Quote: I am good, but not an angel. I do sin, but I am not the devil. I am just a small girl in a big world trying to find someone to love."));
     }
+
+
+    @Test void appTestDataFromApiComparedToLocal() throws IOException {
+        App sut = new App();
+        String quotesOne = sut.getQuotes(new String[]{"recentquotes.json", "no"});
+
+        App sutTwo = new App();
+        String quotesTwo = sutTwo.getQuotes(new String[]{"recentquotes.json", "true"});
+        System.out.println(quotesOne);
+        System.out.println(quotesTwo);
+        assertFalse(quotesOne.equals(quotesTwo));
+    }
+
+
 }
